@@ -7,16 +7,18 @@ jest.mock('fs', () => ({
 }));
 
 const core = require('@actions/core');
-const { GitHub, context } = require('@actions/github');
+const { getOctokit, context } = require('@actions/github');
 const fs = require('fs');
-const run = require('../src/create-release.js');
+const run = require('../src/create-release');
 
 /* eslint-disable no-undef */
 describe('Create Release', () => {
   let createRelease;
 
   beforeEach(() => {
-    createRelease = jest.fn().mockReturnValueOnce({
+    jest.clearAllMocks();
+
+    createRelease = jest.fn().mockReturnValue({
       data: {
         id: 'releaseId',
         html_url: 'htmlUrl',
@@ -36,7 +38,7 @@ describe('Create Release', () => {
       }
     };
 
-    GitHub.mockImplementation(() => github);
+    getOctokit.mockImplementation(() => github);
   });
 
   test('Create release endpoint is called', async () => {
@@ -185,7 +187,6 @@ describe('Create Release', () => {
       .mockReturnValueOnce('false')
       .mockReturnValueOnce('false');
 
-    createRelease.mockRestore();
     createRelease.mockImplementation(() => {
       throw new Error('Error creating release');
     });
